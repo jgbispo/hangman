@@ -1,64 +1,41 @@
 // Hangman Game
 // Created by: João Gustavo Soares Bispo
 // Created on: 2022-11-15
+// IDE: CLion
+// Version: 1.0
+// Repository: https://github.com/jgbispo/hangman
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <stdbool.h>
 
 #define MAX 100
 
-int drawHangman(int, char *);
+int drawHangman(int);
 
 int getWord(char[]);
 
-int drawWord(char *, char *);
-
-int drawLetters(char *, int);
+int drawWord(char *, char *, int);
 
 int main(void) {
-    char word[MAX], guess[MAX], letter;
+    char word[MAX], guess[MAX];
+    int attempt = 0;
+    getWord(word);
+    do {
+        drawHangman(attempt);
+        attempt = drawWord(word, guess, attempt);
 
-    if (getWord(word) == 1) {
-        return 1;
-    } else {
-        drawHangman(0, word);
-        drawWord(word, guess);
-    }
-
-    return 0;
+    } while (attempt < 6);
+    printf("Game Over. The word was \"%s\"", word);
 }
 
-int getWord(char word[]) {
-    FILE *file;
-    int i = 0, j = 0, k = 0, n = 0;
-    char line[MAX], words[MAX][MAX];
-
-    file = fopen("../words.txt", "r");
-
-    if (file == NULL) {
-        printf("Error opening file words.txt");
-        return 1;
-    }
-
-    while (fgets(line, MAX, file) != NULL) {
-        strcpy(words[i], line);
-        i++;
-    }
-
-    srand(time(NULL));
-    n = rand() % i;
-    strcpy(word, words[n]);
-
-    fclose(file);
-    return 0;
-}
-
-int drawWord(char *word, char *guess) {
-    int i, matches = 0, len = strlen(word);
+int drawWord(char *word, char *guess, int attempt) {
+    int i, matches = 0, len = strlen(word) - 1;
     char letter;
-    for (i = 1; i < len; i++) {
+    bool found = false;
+    for (i = 0; i < len; i++) {
         if (word[i] == guess[i]) {
             printf("%c ", word[i]);
             matches++;
@@ -66,20 +43,30 @@ int drawWord(char *word, char *guess) {
             printf("_ ");
         }
     }
+
     if (matches == len) {
-        return 0;
+        printf("You Win");
+        return 6;
     }
+
     printf("\nGuess a letter: ");
     scanf(" %c", &letter);
     for (i = 0; i < len; i++) {
         if (word[i] == letter) {
             guess[i] = letter;
+            found = true;
         }
     }
-    return 0;
+
+    if (!found) {
+        attempt += 1;
+        return attempt;
+    } else {
+        return attempt;
+    }
 }
 
-int drawHangman(int wrongGuesses, char *word) {
+int drawHangman(int wrongGuesses) {
     switch (wrongGuesses) {
         case 0:
             printf("|-------|\n");
@@ -104,7 +91,7 @@ int drawHangman(int wrongGuesses, char *word) {
             printf("|-------|\n");
             printf("|       |\n");
             printf("|       O\n");
-            printf("|       |\\n");
+            printf("|       |\\\n");
             printf("|\n");
             printf("|\n");
             printf("|\n");
@@ -137,7 +124,6 @@ int drawHangman(int wrongGuesses, char *word) {
             printf("|\n");
             printf("|\n");
             printf("|\n");
-            printf("You lose! The word was %s", word);
             break;
         case 6:
             printf("|-------|\n");
@@ -149,11 +135,35 @@ int drawHangman(int wrongGuesses, char *word) {
             printf("|\n");
             printf("|\n");
             printf("|\n");
-            printf("You lose! The word was %s", word);
             break;
         default:
             printf("Invalid number of wrong guesses");
             break;
     }
+    return 0;
+}
+
+int getWord(char word[]) {
+    FILE *file;
+    int i = 0;
+    char line[MAX], words[MAX][MAX];
+
+    file = fopen("../words.txt", "r");
+
+    if (file == NULL) {
+        printf("Error opening file words.txt");
+        return 1;
+    }
+
+    while (fgets(line, MAX, file) != NULL) {
+        strcpy(words[i], line);
+        i++;
+    }
+
+    srand(time(NULL));
+    int n = rand() % i;
+    strcpy(word, words[n]);
+
+    fclose(file);
     return 0;
 }
