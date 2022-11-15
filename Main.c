@@ -10,13 +10,18 @@
 #define MAX 100
 
 int drawHangman(int);
+
 int drawWord(char *, char *, int);
 
 int main(void) {
+    char word[MAX], guess[MAX], letter;
+
+
     return 0;
 }
 
 int drawWord(char *word, char *guess, int tries) {
+    printf("%s", word);
     int i, matches = 0, len = strlen(word);
     char letter;
     for (i = 0; i < len; i++) {
@@ -30,7 +35,17 @@ int drawWord(char *word, char *guess, int tries) {
     if (matches == len) {
         return 0;
     }
-    printf("
+    printf(" Tries: %d ", tries);
+    printf(" Guess a letter: ");
+    scanf(" %c", &letter);
+    for (i = 0; i < len; i++) {
+        if (word[i] == letter) {
+            guess[i] = letter;
+        }
+    }
+    return 1;
+}
+
 
 int drawHangman(int wrongGuesses) {
     switch (wrongGuesses) {
